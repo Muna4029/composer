@@ -10,7 +10,11 @@ import random
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import torch
-import transformers
+try:
+    import transformers
+    IS_TRANSFORMERS_INSTALLED = True
+except ImportError:
+    IS_TRANSFORMERS_INSTALLED = False
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
@@ -20,7 +24,6 @@ from composer.utils import MissingConditionalImportError, dist, get_file
 
 if TYPE_CHECKING:
     import transformers
-
 # Allow models to have slightly more tokens than were used in the most verbose CoT in the dataset
 _MAX_ANSWER_BUFFER_LENGTH = 10
 
@@ -154,6 +157,9 @@ class InContextLearningQATaskDataset(Dataset):
         fewshot_random_seed: int,
         cot_delimiter: str = '',
     ):
+        if not IS_TRANSFORMERS_INSTALLED:
+            raise MissingConditionalImportError(extra_deps_group='nlp',
+                                                conda_package='transformers')
         try:
             from datasets import load_dataset  # pyright: ignore [reportGeneralTypeIssues]
         except ImportError as e:
@@ -375,6 +381,9 @@ class InContextLearningLMTaskDataset(Dataset):
         destination_path: str,
         fewshot_random_seed: int,
     ):
+        if not IS_TRANSFORMERS_INSTALLED:
+            raise MissingConditionalImportError(extra_deps_group='nlp',
+                                                conda_package='transformers')
         try:
             from datasets import load_dataset  # pyright: ignore [reportGeneralTypeIssues]
         except ImportError as e:
@@ -539,6 +548,9 @@ class InContextLearningMultipleChoiceTaskDataset(Dataset):
         destination_path: str,
         fewshot_random_seed: int,
     ):
+        if not IS_TRANSFORMERS_INSTALLED:
+            raise MissingConditionalImportError(extra_deps_group='nlp',
+                                                conda_package='transformers')
         try:
             from datasets import load_dataset  # pyright: ignore [reportGeneralTypeIssues]
         except ImportError as e:
@@ -767,6 +779,9 @@ class InContextLearningSchemaTaskDataset(InContextLearningMultipleChoiceTaskData
         destination_path: str,
         fewshot_random_seed: int,
     ):
+        if not IS_TRANSFORMERS_INSTALLED:
+            raise MissingConditionalImportError(extra_deps_group='nlp',
+                                                conda_package='transformers')
         try:
             from datasets import load_dataset  # pyright: ignore [reportGeneralTypeIssues]
         except ImportError as e:
@@ -950,6 +965,9 @@ class InContextLearningCodeEvalDataset(Dataset):
         top_p: Optional[float] = 0.95,
         top_k: Optional[int] = 40,
     ):
+        if not IS_TRANSFORMERS_INSTALLED:
+            raise MissingConditionalImportError(extra_deps_group='nlp',
+                                                conda_package='transformers')
         try:
             from datasets import load_dataset  # pyright: ignore [reportGeneralTypeIssues]
         except ImportError as e:
