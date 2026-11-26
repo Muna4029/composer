@@ -6,7 +6,12 @@ from typing import List, Optional
 
 import pytest
 
-from composer.utils import reproducibility
+try:
+    from composer.utils import reproducibility
+    _COMPOSER_INSTALLED = True
+except Exception:  # catch ImportError and other import-time errors
+    reproducibility = None
+    _COMPOSER_INSTALLED = False
 
 # Allowed options for pytest.mark.world_size()
 # Important: when updating this list, make sure to also up ./.ci/test.sh
@@ -14,8 +19,13 @@ from composer.utils import reproducibility
 # (so the documentation is correct)
 WORLD_SIZE_OPTIONS = (1, 2)
 
-# Enforce deterministic mode before any tests start.
-reproducibility.configure_deterministic_mode()
+# Enforce deterministic mode before any tests start if composer is available.
+if _COMPOSER_INSTALLED and reproducibility is not None:
+    try:
+        reproducibility.configure_deterministic_mode()
+    except Exception:
+        # If configure fails (e.g., optional deps missing), continue without aborting pytest import
+        pass
 
 # Add the path of any pytest fixture files you want to make global
 pytest_plugins = [

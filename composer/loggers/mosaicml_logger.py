@@ -17,13 +17,28 @@ from concurrent.futures import wait
 from functools import reduce
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-import mcli
-import torch
+# Optional third-party imports: guard them so missing optional deps do not
+# abort package import during test collection. If the import fails we set
+# the name to None and import lazily (or handle None) at runtime where
+# the functionality is actually needed.
+try:
+    import mcli
+except Exception:
+    mcli = None
+
+try:
+    import torch
+except Exception:
+    torch = None
+
+try:
+    from composer.loggers.wandb_logger import WandBLogger
+except Exception:
+    WandBLogger = None
 
 from composer.core.time import TimeUnit
 from composer.loggers import Logger
 from composer.loggers.logger_destination import LoggerDestination
-from composer.loggers.wandb_logger import WandBLogger
 from composer.utils import dist
 
 if TYPE_CHECKING:

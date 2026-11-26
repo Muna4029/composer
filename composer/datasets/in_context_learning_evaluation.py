@@ -10,7 +10,10 @@ import random
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import torch
-import transformers
+try:
+    import transformers
+except ImportError:  # transformers is an optional dependency; avoid hard failure at import time
+    transformers = None
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 

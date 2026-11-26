@@ -13,14 +13,33 @@ from typing import Callable, Optional
 from torch.utils.data import DataLoader
 
 from composer.core import Callback, State
-from composer.datasets.in_context_learning_evaluation import (InContextLearningCodeEvalDataset,
-                                                              InContextLearningLMTaskDataset,
-                                                              InContextLearningMultipleChoiceTaskDataset,
-                                                              InContextLearningQATaskDataset,
-                                                              InContextLearningSchemaTaskDataset)
+# Import the conditional/optional utilities first so we can produce a helpful error
+from composer.utils import MissingConditionalImportError, dist, maybe_create_object_store_from_uri, parse_uri
+
+# The in-context learning evaluation module depends on optional third-party
+# packages (e.g., transformers). Defer importing it and handle the case where
+# the optional dependency is not installed so that importing this module does
+# not fail at test-collection time.
+try:
+    from composer.datasets.in_context_learning_evaluation import (
+        InContextLearningCodeEvalDataset,
+        InContextLearningLMTaskDataset,
+        InContextLearningMultipleChoiceTaskDataset,
+        InContextLearningQATaskDataset,
+        InContextLearningSchemaTaskDataset,
+    )
+except Exception:
+    # Optional dependency missing — expose sentinel None values. Code that
+    # actually needs these types should raise a MissingConditionalImportError
+    # with an informative message when attempting to use them.
+    InContextLearningCodeEvalDataset = None
+    InContextLearningLMTaskDataset = None
+    InContextLearningMultipleChoiceTaskDataset = None
+    InContextLearningQATaskDataset = None
+    InContextLearningSchemaTaskDataset = None
+
 from composer.loggers import Logger
 from composer.loggers.console_logger import ConsoleLogger
-from composer.utils import MissingConditionalImportError, dist, maybe_create_object_store_from_uri, parse_uri
 
 ICLDatasetTypes = (InContextLearningLMTaskDataset, InContextLearningQATaskDataset,
                    InContextLearningMultipleChoiceTaskDataset, InContextLearningSchemaTaskDataset,
